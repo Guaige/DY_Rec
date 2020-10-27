@@ -8,7 +8,6 @@ import smtplib
 import time
 from email.mime.text import MIMEText
 from email.header import Header
-from pip._vendor import requests
 
 
 def mail_reminder(sub, text):
@@ -41,6 +40,8 @@ class DouYu:
 
         if result:
             self.rid = result.group(1)
+        else:
+            raise Exception('房间号错误')
 
     @staticmethod
     def md5(data):
@@ -95,41 +96,42 @@ class DouYu:
         if error == 0:
             pass
         elif error == 102:
-            #raise Exception('房间不存在')
-            return -1
+            raise Exception('房间不存在')
         elif error == 104:
-            #raise Exception('房间未开播')
-            return -1
+            raise Exception('房间未开播')
         else:
             key = self.get_js()
         return "http://tx2play1.douyucdn.cn/live/{}.flv".format(key)
 
 
+
+ID = input("ID: ")
+MailCount = 0
 if __name__ == '__main__':
-    r = 687423
-    Rem = 0
     while True:
-        s = DouYu(r)
-        ret = s.get_real_url()
-        Rem = 0
-        if ret == -1:
-            print("\rFailure :\t" + str(ret) + time.strftime("\t%H:%M:%S", time.localtime()), end='', flush=True)
-            Rem = -1
-            time.sleep(1)
-        else:
-            if Rem == -1:
-                mail_reminder('Living!', str(r))
-                print('Mail Sent!\t' + time.strftime("%H:%M:%S", time.localtime()))
+        try:
+            s = DouYu(ID)
+            ret = s.get_real_url()
+            MailCount += 1
+            if MailCount == 1:
+                mail_reminder(str(ID) + ' Living!', str(ID))
+                print('Mail Sent!\t' + str(ID) + ' ' + time.strftime("%H:%M:%S", time.localtime()))
             time_s = time.strftime("%H_%M_%S", time.localtime())
-            filename = str(r) + "__" + time_s + ".flv"
+            filename = str(ID) + "__" + time_s + ".flv"
             print('\rTracking ' + filename)
             r = requests.get(ret, stream=True, timeout=5)
             f = open(filename, "wb")
             for chunk in r.iter_content(chunk_size=512):
                 if chunk:
                     f.write(chunk)
-                    print("\rRecording\t" + time.strftime("%H:%M:%S", time.localtime()), end='', flush=True)
-            time.sleep(5)
-            cmd = "ffmpeg -i " + filename + "-codec copy CUT_" + filename
+                    print("\rRecording\t" + str(ID) + ' ' + time.strftime("%H:%M:%S", time.localtime()), end='', flush=True)
+            cmd = "ffmpeg -i " + filename + " -codec copy CUT_" + filename
             print(cmd)
             print(os.popen(cmd))
+        except Exception as e:
+            ErrorText = str(e) + ' ' + time.strftime("%H:%M:%S", time.localtime())
+            f = open(str(ID) + '.txt', "a")
+            print('\r' + ErrorText, end='', flush=True)
+            f.write(ErrorText + '\n')
+            f.close()
+        time.sleep(1)
