@@ -111,7 +111,7 @@ if __name__ == '__main__':
             s = DouYu(ID)
             ret = s.get_real_url()
             MailCount += 1
-            if MailCount == 1 and ID == 7189349:
+            if MailCount == 1 and ID == '7189349':
                 mail_reminder(str(ID) + ' Living!', str(ID))
                 print('Mail Sent!\t' + str(ID) + ' ' + time.strftime("%H:%M:%S", time.localtime()))
             time_s = time.strftime("%H_%M_%S", time.localtime())
