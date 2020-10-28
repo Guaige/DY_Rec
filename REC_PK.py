@@ -103,39 +103,88 @@ class DouYu:
         return "http://tx2play1.douyucdn.cn/live/{}.flv".format(key)
 
 
-ID = input("ID: ")
+ID = input("PK_ID: ")
 MailCount = 0
+Count = 0
 if __name__ == '__main__':
     while True:
         try:
             s = DouYu(ID)
             ret = s.get_real_url()
+            pattern = re.compile(r'\d+vs\d+')
+            if pattern.search(ret):
+                try:
+                    time_s = time.strftime("%H_%M_%S", time.localtime())
+                    filename = time_s + '__' + pattern.search(ret).group() + ".flv"
+                    print('\rTracking ' + filename)
+                    r = requests.get(ret, stream=True, timeout=5)
+                    f = open(filename, "wb")
+                    for chunk in r.iter_content(chunk_size=512):
+                        if chunk:
+                            f.write(chunk)
+                            print("\rRecording_PK\t" + ret + '\t' + time.strftime("%H:%M:%S", time.localtime()), end='', flush=True)
+                except Exception as e:
+                    ErrorText = str(e) + ' ' + pattern.search(ret).group() + ' ' + time.strftime("%H:%M:%S", time.localtime())
+                    f = open(pattern.search(ret).group() + '.txt', "a")
+                    print(ErrorText)
+                    f.write(ErrorText + '\n')
+                    f.close()
+                cmd = "ffmpeg -i " + filename + " -codec copy CUT_" + filename
+                print('\n' + cmd)
+                print(os.popen(cmd))
+            else:
+                print('\r Tracked Normal Link :\t' + ret + '\t' + time.strftime("%H:%M:%S", time.localtime()), end='', flush=True)
+            '''
+            ret_n = ''
+            if Count == 0:
+                time_s = time.strftime("%H_%M_%S", time.localtime())
+                if pattern.search(ret):
+                    strID = pattern.search(ret).group()
+                else:
+                    strID = str(ID)
+                filename = strID + "__" + time_s + ".flv"
+                print('\rTracking ' + filename)
+                cmd = 'curl -o ' + filename + ' ' + ret
+                print(cmd)
+                print(os.popen(cmd))
+                Count += 1
+                ret_l = ret
+                if not pattern.search(ret):
+                    ret_n = ret
+                continue
+            if ret_l != ret and ret_n != ret:
+                time_s = time.strftime("%H_%M_%S", time.localtime())
+                if pattern.search(ret):
+                    strID = pattern.search(ret).group()
+                else:
+                    ret_n = ret
+                    strID = str(ID)
+                filename = strID + "__" + time_s + ".flv"
+                print('\rTracking ' + filename)
+                cmd = 'curl -o ' + filename + ' ' + ret
+                print(cmd)
+                print(os.popen(cmd))
+                ret_l = ret
+
+            pattern = re.compile(r'\d+vs\d+')
+            if not pattern.search(ret):
+                print('\rNOT PKing!\t' + ret + ' ' + time.strftime("%H:%M:%S", time.localtime()), end='', flush=True)
+                continue
+            ID_PK = pattern.search(ret).group()            
             MailCount += 1
-            if MailCount == 1 and ID == 7189349:
+            if MailCount == -1:
                 mail_reminder(str(ID) + ' Living!', str(ID))
                 print('Mail Sent!\t' + str(ID) + ' ' + time.strftime("%H:%M:%S", time.localtime()))
-            time_s = time.strftime("%H_%M_%S", time.localtime())
-            filename = str(ID) + "__" + time_s + ".flv"
-            print('\rTracking ' + filename)
-            try:
-                r = requests.get(ret, stream=True, timeout=5)
-                f = open(filename, "wb")
-                for chunk in r.iter_content(chunk_size=512):
-                    if chunk:
-                        f.write(chunk)
-                        print("\rRecording\t" + ret + '\t' + time.strftime("%H:%M:%S", time.localtime()), end='', flush=True)
-            except Exception as e:
-                ErrorText = str(e) + ' ' + str(ID) + ' ' + time.strftime("%H:%M:%S", time.localtime())
-                f = open(str(ID) + '_Recording.txt', "a")
-                print(ErrorText)
-                f.write(ErrorText + '\n')
-                f.close()
+
             cmd = "ffmpeg -i " + filename + " -codec copy CUT_" + filename
-            print('\n' + cmd)
-            print(os.popen(cmd))
+            print(cmd)
+            #print(os.popen(cmd))
+            
+            '''
+
         except Exception as e:
             ErrorText = str(e) + ' ' + time.strftime("%H:%M:%S", time.localtime())
-            f = open(str(ID) + '.txt', "a")
+            f = open(str(ID) + '_PK.txt', "a")
             print('\r' + ErrorText, end='', flush=True)
             f.write(ErrorText + '\n')
             f.close()
