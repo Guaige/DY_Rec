@@ -14,10 +14,10 @@ def mail_reminder(rid):
     mail_user = "2967322586"  # 用户名
     mail_pass = "ylrtzbaxjxikdgbi"  # 口令
     sender = '2967322586@qq.com'
-    receivers = ['guaige1995@qq.com']  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
+    receivers = ['2967322586@qq.com']  # 接收邮件，可设置为你的QQ邮箱或者其他邮箱
     message = MIMEText('Douyu.com/' + rid + ' is Living!', 'plain', 'utf-8')
     message['From'] = Header("Douyu Reminder", 'utf-8')
-    message['To'] = Header("guaige1995", 'utf-8')
+    message['To'] = Header("2967322586", 'utf-8')
     subject = rid + 'Living!'
     message['Subject'] = Header(subject, 'utf-8')
     smtpObj = smtplib.SMTP()
