@@ -11,13 +11,13 @@ from email.header import Header
 
 def mail_reminder(sub, text):
     mail_host = "smtp.qq.com"
-    mail_user = "see1deer"
+    mail_user = "2967322586"
     mail_pass = "vzsgdsjwydbndegh"
-    sender = 'see1deer@qq.com'
-    receivers = ['guaige1995@qq.com']
+    sender = '2967322586@qq.com'
+    receivers = ['2967322586@qq.com']
     message = MIMEText(text)
-    message['From'] = Header('Guai_296', 'utf-8')
-    message['To'] = Header('Guaige1995', 'utf-8')
+    message['From'] = Header('2967322586', 'utf-8')
+    message['To'] = Header('2967322586', 'utf-8')
     message['Subject'] = Header(sub, 'utf-8')
     smtpObj = smtplib.SMTP()
     smtpObj.connect(mail_host, 25)
